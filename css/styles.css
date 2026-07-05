@@ -4,6 +4,36 @@
    dependent UI, tap-highlight off, generous type sizes.
    ============================================================ */
 
+/* Self-hosted latin subsets (was Google Fonts — two extra origins, render-blocking) */
+@font-face {
+  font-family: "Fredoka";
+  font-style: normal;
+  font-weight: 300 700;
+  font-display: swap;
+  src: url("../fonts/fredoka-latin-var.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Andika";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../fonts/andika-latin-400.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Andika";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("../fonts/andika-latin-700.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Patrick Hand";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../fonts/patrick-hand-latin-400.woff2") format("woff2");
+}
+
 :root {
   --cream: #FFF6E9;
   --cream-2: #FFFDF6;

@@ -65,6 +65,15 @@ as-is to any static host (Vercel, Netlify, GitHub Pages).
 - Sound (chimes + speech) can be toggled with the 🔊 button; all audio is synthesized or
   spoken on-device — there are no audio files.
 
+## Performance & offline
+
+- Fonts are self-hosted latin-subset WOFF2 files (~69KB total, preloaded) — no
+  third-party requests at all.
+- A service worker (`sw.js`) precaches the entire app, so repeat visits load
+  instantly and the whole workbook **works offline** once it has been opened once.
+  Fetches are stale-while-revalidate: new deploys appear on the next visit
+  automatically. Bump `CACHE` in `sw.js` only if files are added or removed.
+
 ## Files
 
 ```
