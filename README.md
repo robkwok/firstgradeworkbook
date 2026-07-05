@@ -51,6 +51,10 @@ as-is to any static host (Vercel, Netlify, GitHub Pages).
   literacy learners; tracing glyphs use a school-style handwriting font.
 - **Reward system.** Rounds earn yuzu oranges 🍊 for Cappy's warm bath (a real capybara
   thing!) and stars track per-activity mastery. Progress persists in `localStorage`.
+- **Player profiles.** Kids pick or type their name on launch; each name saves its own
+  stars, yuzus, best scores, and traced letters — great for siblings or a classroom
+  sharing one iPad. The 👤 chip in the header switches players, and the **🌟 My Stars**
+  report card shows saved results per activity.
 
 ## iPad specifics
 

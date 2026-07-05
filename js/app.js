@@ -15,6 +15,10 @@ function shuffle(arr) {
 }
 function sample(arr, n) { return shuffle(arr).slice(0, n); }
 function capWord(w) { return w.charAt(0).toUpperCase() + w.slice(1); }
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c =>
+    ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+}
 
 /* ---------- activity registry ---------- */
 const ACTIVITIES = [];
@@ -31,31 +35,54 @@ const GENTLE = ["Almost!", "Try again!", "So close!", "Keep going!"];
 
 /* ============================================================ App */
 const App = {
-  state: null,
+  store: null,
   els: {},
+
+  /* progress for the current player (a scratch object before a name is set) */
+  get state() {
+    return (this.store.current && this.store.players[this.store.current]) ||
+      this._nobody || (this._nobody = this.blankPlayer());
+  },
+  blankPlayer() { return { activities: {}, yuzus: 0, traceDone: {}, storyIdx: 0 }; },
 
   load() {
     try {
-      const raw = localStorage.getItem("capyWorkbookV1");
+      const raw = localStorage.getItem("capyWorkbookV2");
       if (raw) return JSON.parse(raw);
     } catch (e) {}
-    return { activities: {}, yuzus: 0, sound: true, traceDone: {}, storyIdx: 0 };
+    const store = { players: {}, current: null, sound: true };
+    // migrate single-player v1 progress, if any
+    try {
+      const old = localStorage.getItem("capyWorkbookV1");
+      if (old) {
+        const v1 = JSON.parse(old);
+        store.players["Player 1"] = {
+          activities: v1.activities || {}, yuzus: v1.yuzus || 0,
+          traceDone: v1.traceDone || {}, storyIdx: v1.storyIdx || 0
+        };
+        store.sound = v1.sound !== false;
+        localStorage.removeItem("capyWorkbookV1");
+      }
+    } catch (e) {}
+    return store;
   },
-  save() { try { localStorage.setItem("capyWorkbookV1", JSON.stringify(this.state)); } catch (e) {} },
+  save() { try { localStorage.setItem("capyWorkbookV2", JSON.stringify(this.store)); } catch (e) {} },
 
   init() {
-    this.state = this.load();
+    this.store = this.load();
     this.els.screen = document.getElementById("screen");
     this.els.title = document.getElementById("topbar-title");
     this.els.back = document.getElementById("btn-back");
     this.els.yuzu = document.getElementById("yuzu-count");
     this.els.sound = document.getElementById("btn-sound");
+    this.els.playerChip = document.getElementById("player-chip");
+    this.els.playerName = document.getElementById("player-name");
 
-    Capy.Sfx.on = this.state.sound !== false;
+    Capy.Sfx.on = this.store.sound !== false;
     this.els.sound.textContent = Capy.Sfx.on ? "🔊" : "🔇";
     this.els.sound.addEventListener("click", () => {
       Capy.Sfx.on = !Capy.Sfx.on;
-      this.state.sound = Capy.Sfx.on;
+      this.store.sound = Capy.Sfx.on;
       this.els.sound.textContent = Capy.Sfx.on ? "🔊" : "🔇";
       if (Capy.Sfx.on) Capy.Sfx.pop();
       this.save();
@@ -64,13 +91,93 @@ const App = {
       Capy.Sfx.pop();
       if (this._backTo) this._backTo(); else this.goHome();
     });
+    this.els.playerChip.addEventListener("click", () => {
+      Capy.Sfx.pop();
+      this.goPlayers();
+    });
 
     Capy.Confetti.init(document.getElementById("confetti"));
+    this.updateYuzu();
+    this.updatePlayerChip();
+    if (this.store.current && this.store.players[this.store.current]) this.goHome();
+    else this.goPlayers();
+  },
+
+  updateYuzu() { this.els.yuzu.textContent = this.state.yuzus; },
+  updatePlayerChip() {
+    this.els.playerName.textContent = this.store.current || "Name";
+  },
+
+  /* ---------------- player picker ---------------- */
+  goPlayers() {
+    const names = Object.keys(this.store.players);
+    const cards = names.map(n => {
+      const p = this.store.players[n];
+      const stars = Object.values(p.activities).reduce((s, a) => s + (a.stars || 0), 0);
+      return `
+        <div class="player-card-wrap">
+          <button class="player-card" data-name="${escapeHtml(n)}">
+            <span class="player-avatar">${Capy.front({ size: 78, happy: true, tangerine: true })}</span>
+            <span class="player-label">${escapeHtml(n)}</span>
+            <span class="player-stats">⭐ ${stars} · 🍊 ${p.yuzus}</span>
+          </button>
+          <button class="player-del" data-del="${escapeHtml(n)}" aria-label="Delete player">✕</button>
+        </div>`;
+    }).join("");
+
+    const hasCurrent = !!(this.store.current && this.store.players[this.store.current]);
+    this.setScreen(`
+      <div class="players-page">
+        <div class="players-hero">${Capy.side({ tangerine: true, size: 170 })}</div>
+        <h1 class="players-title">Who’s learning today?</h1>
+        ${names.length ? `<div class="player-grid">${cards}</div>` : ""}
+        <div class="add-player">
+          <input id="player-input" maxlength="14" placeholder="Type your name…"
+            autocapitalize="words" autocomplete="off" spellcheck="false" enterkeyhint="go">
+          <button class="big-btn orange" id="player-add">Let’s Go! →</button>
+        </div>
+        <p class="home-tip">Each name saves its own stars, yuzus, and traced letters.</p>
+      </div>
+    `, { title: "Who’s playing? 👤", backTo: hasCurrent ? () => this.goHome() : null });
+
+    const input = document.getElementById("player-input");
+    const add = () => {
+      const name = input.value.trim().slice(0, 14);
+      if (!name) {
+        input.classList.remove("shake-it"); void input.offsetWidth;
+        input.classList.add("shake-it");
+        return;
+      }
+      this.selectPlayer(name);
+    };
+    document.getElementById("player-add").addEventListener("click", add);
+    input.addEventListener("keydown", e => { if (e.key === "Enter") add(); });
+
+    document.querySelectorAll(".player-card").forEach(b =>
+      b.addEventListener("click", () => this.selectPlayer(b.dataset.name)));
+    document.querySelectorAll(".player-del").forEach(b =>
+      b.addEventListener("click", () => this.deletePlayer(b.dataset.del)));
+  },
+
+  selectPlayer(name) {
+    if (!this.store.players[name]) this.store.players[name] = this.blankPlayer();
+    this.store.current = name;
+    this.save();
+    Capy.Sfx.ding();
+    Capy.speak(`Hi ${name}! Let's play!`);
+    this.updatePlayerChip();
     this.updateYuzu();
     this.goHome();
   },
 
-  updateYuzu() { this.els.yuzu.textContent = this.state.yuzus; },
+  deletePlayer(name) {
+    if (!confirm(`Delete ${name}’s saved progress?`)) return;
+    delete this.store.players[name];
+    if (this.store.current === name) this.store.current = null;
+    this.save();
+    this.updatePlayerChip();
+    this.goPlayers();
+  },
 
   /* Screen management: content + topbar title + back target */
   setScreen(html, { title = "Cappy’s Workbook", backTo = null } = {}) {
@@ -114,6 +221,7 @@ const App = {
         </button>`;
     }).join("");
 
+    const name = this.store.current;
     this.setScreen(`
       <div class="home">
         <div class="hero">
@@ -121,10 +229,13 @@ const App = {
           <div class="hero-text">
             <h1>Cappy’s Workbook</h1>
             <p class="tagline">First grade fun with your capybara friend! 🌿</p>
-            <p class="bubble">“Pick a subject and let’s play!”</p>
+            <p class="bubble">“Hi ${escapeHtml(name)}! Pick a subject and let’s play!”</p>
           </div>
         </div>
         <div class="subject-grid">${cards}</div>
+        <div class="home-actions">
+          <button class="big-btn tan" onclick="App.goReport()">🌟 My Stars</button>
+        </div>
         <p class="home-tip">Finish a round to earn a yuzu orange 🍊 for Cappy’s warm bath!</p>
       </div>
     `);
@@ -177,8 +288,45 @@ const App = {
     this.setStars(act.id, stars);
     const rec = this.state.activities[act.id];
     rec.plays = (rec.plays || 0) + 1;
+    if (!(rec.bestFrac >= frac)) { rec.bestFrac = frac; rec.best = `${score}/${total}`; }
     this.addYuzu(1);
     Celebrate.show({ act, stars, score, total });
+  },
+
+  /* ---------------- report card ---------------- */
+  goReport() {
+    const name = this.store.current;
+    const sections = Object.entries(SUBJECTS).map(([key, s]) => {
+      const rows = ACTIVITIES.filter(a => a.subject === key).map(a => {
+        const rec = this.state.activities[a.id] || {};
+        const stars = rec.stars || 0;
+        const info = a.id === "write-trace"
+          ? `${Object.keys(this.state.traceDone).length} letters traced`
+          : rec.plays ? `Played ${rec.plays}× · Best ${rec.best || "—"}` : "Not played yet";
+        return `
+          <div class="report-row">
+            <span class="report-emoji">${a.emoji}</span>
+            <span class="report-title">${a.title}</span>
+            <span class="report-stars">${"★".repeat(stars)}${"☆".repeat(3 - stars)}</span>
+            <span class="report-info">${info}</span>
+          </div>`;
+      }).join("");
+      return `<div class="report-section ${s.cls}"><h3>${s.emoji} ${s.title}</h3>${rows}</div>`;
+    }).join("");
+    const totalStars = Object.values(this.state.activities).reduce((n, a) => n + (a.stars || 0), 0);
+
+    this.setScreen(`
+      <div class="report-page">
+        <div class="report-head">
+          ${Capy.front({ size: 108, happy: true, tangerine: true })}
+          <div>
+            <h2>${escapeHtml(name)}’s Report Card</h2>
+            <p class="report-totals">⭐ ${totalStars} stars &nbsp;·&nbsp; 🍊 ${this.state.yuzus} yuzus</p>
+          </div>
+        </div>
+        ${sections}
+      </div>
+    `, { title: "My Stars 🌟", backTo: () => this.goHome() });
   }
 };
 
@@ -376,7 +524,9 @@ const Engine = {
 const Celebrate = {
   show({ act, stars, score, total }) {
     const ov = document.getElementById("overlay");
-    const headline = choice(["Amazing work!", "Way to go!", "Capy-tastic!", "You did it!", "Super swimmer!"]);
+    let headline = choice(["Amazing work!", "Way to go!", "Capy-tastic!", "You did it!", "Super swimmer!"]);
+    const name = App.store.current;
+    if (name) headline = headline.replace(/!$/, `, ${escapeHtml(name)}!`);
     ov.innerHTML = `
       <div class="celebrate-card pop-in">
         <div class="celebrate-capy">${Capy.front({ tangerine: true, happy: true, size: 170 })}</div>
