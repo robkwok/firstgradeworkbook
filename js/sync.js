@@ -129,7 +129,7 @@ const Sync = {
 
     App.setScreen(`
       <div class="players-page sync-page">
-        <div class="players-hero">${Capy.front({ size: 120, happy: true, tangerine: true })}</div>
+        <div class="players-hero">${Capy.tappable(Capy.front({ size: 120, happy: true, tangerine: true }), "players")}</div>
         <h1 class="players-title">Family Sync 🔗</h1>
         ${body}
         <p class="home-tip">Only first names and stars are stored — nothing else.</p>

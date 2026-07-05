@@ -105,12 +105,26 @@ const Capy = (() => {
     o.connect(g).connect(ctx.destination);
     o.start(t); o.stop(t + dur + 0.05);
   }
+  function chirp(f1, f2, start, dur, vol = 0.12) {
+    const ctx = audio(); if (!ctx) return;
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.type = "sine";
+    const t = ctx.currentTime + start;
+    o.frequency.setValueAtTime(f1, t);
+    o.frequency.exponentialRampToValueAtTime(f2, t + dur);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(vol, t + 0.015);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g).connect(ctx.destination);
+    o.start(t); o.stop(t + dur + 0.05);
+  }
   const Sfx = {
     on: true,
     ding()   { if (this.on) { tone(660, 0, 0.12, "sine", 0.2); tone(880, 0.1, 0.2, "sine", 0.2); } },
     boop()   { if (this.on) tone(200, 0, 0.22, "triangle", 0.12); },
     pop()    { if (this.on) tone(720, 0, 0.06, "square", 0.06); },
-    fanfare(){ if (this.on) [523, 659, 784, 1047].forEach((f, i) => tone(f, i * 0.13, 0.28, "sine", 0.2)); }
+    fanfare(){ if (this.on) [523, 659, 784, 1047].forEach((f, i) => tone(f, i * 0.13, 0.28, "sine", 0.2)); },
+    squeak() { if (this.on) { chirp(600, 1400, 0, 0.09); chirp(750, 1550, 0.13, 0.08); } }
   };
 
   /* ---------------- Text to speech ---------------- */
@@ -123,16 +137,102 @@ const Capy = (() => {
   if ("speechSynthesis" in window) {
     speechSynthesis.onvoiceschanged = () => { voice = pickVoice(); };
   }
-  function speak(text, rate = 0.92) {
+  function speak(text, rate = 0.92, pitch = 1.05) {
     if (!Sfx.on || !("speechSynthesis" in window)) return;
     try {
       speechSynthesis.cancel();
       const u = new SpeechSynthesisUtterance(text);
       if (!voice) voice = pickVoice();
       if (voice) u.voice = voice;
-      u.rate = rate; u.pitch = 1.05; u.lang = "en-US";
+      u.rate = rate; u.pitch = pitch; u.lang = "en-US";
       speechSynthesis.speak(u);
     } catch (e) { /* speech is a nice-to-have */ }
+  }
+
+  /* ---------------- Tap-to-talk catchphrases ---------------- */
+  const PHRASES = {
+    general: [
+      "Stay calm and capy on!",
+      "Squeak-squeak!",
+      "Easy peasy, capy-breezy!",
+      "I love yuzu baths!",
+      "Splish splash!",
+      "Munch, munch… sweet grass!",
+      "Capybaras never rush.",
+      "You're my favorite study buddy!",
+      "Did you know? I can sleep in the water!",
+      "Chillin' like a capybara."
+    ],
+    home: [
+      "Pick a game — any game!",
+      "Learning time is the best time!",
+      "What shall we play today?"
+    ],
+    writing: [
+      "Wiggle those writing fingers!",
+      "Capital letters stand tall — like my ears!",
+      "Every sentence ends with a splash… I mean, a period!"
+    ],
+    reading: [
+      "Sound it out, super reader!",
+      "Once upon a capybara…",
+      "Books are ponds — dive right in!"
+    ],
+    math: [
+      "You can count on me!",
+      "One yuzu, two yuzus, three!",
+      "Numbers are my friends… after ducks."
+    ],
+    players: [
+      "Who's splashing in today?",
+      "Hello, new friend!",
+      "Welcome to my pond!"
+    ],
+    report: [
+      "Wow, look at all those stars!",
+      "I'm so proud of you!",
+      "Shiny, shiny stars!"
+    ],
+    praise: [
+      "Capy-tastic!",
+      "You did it! Squeak!",
+      "Super-duper swimmer!"
+    ]
+  };
+  const lastPhrase = {};
+
+  /* wrap a mascot SVG so tapping it makes Cappy talk */
+  function tappable(svg, pool = "general") {
+    return `<button class="capy-tap" aria-label="Tap Cappy" onclick="Capy.chat(this, '${pool}')">${svg}</button>`;
+  }
+
+  function chat(el, pool = "general") {
+    const options = (PHRASES[pool] || []).concat(PHRASES.general);
+    let i = (Math.random() * options.length) | 0;
+    if (options.length > 1 && i === lastPhrase[pool]) i = (i + 1) % options.length;
+    lastPhrase[pool] = i;
+    const phrase = options[i];
+
+    Sfx.squeak();
+    speak(phrase, 1.0, 1.3);
+
+    el.querySelector(".capy-speech")?.remove();
+    const b = document.createElement("div");
+    b.className = "capy-speech";
+    b.textContent = phrase;
+    el.appendChild(b);
+    requestAnimationFrame(() => {           // keep the bubble on screen
+      const r = b.getBoundingClientRect();
+      let shift = 0;
+      if (r.left < 8) shift = 8 - r.left;
+      if (r.right > innerWidth - 8) shift = innerWidth - 8 - r.right;
+      if (shift) b.style.transform = `translateX(calc(-50% + ${shift}px))`;
+    });
+    setTimeout(() => b.remove(), 2400);
+
+    el.classList.remove("capy-wiggle"); void el.offsetWidth;
+    el.classList.add("capy-wiggle");
+    setTimeout(() => el.classList.remove("capy-wiggle"), 600);
   }
 
   /* ---------------- Confetti ---------------- */
@@ -181,5 +281,5 @@ const Capy = (() => {
     }
   };
 
-  return { side, front, mini, Sfx, speak, Confetti, colors: C };
+  return { side, front, mini, Sfx, speak, Confetti, tappable, chat, colors: C };
 })();

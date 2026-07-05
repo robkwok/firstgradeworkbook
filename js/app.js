@@ -137,7 +137,7 @@ const App = {
     const hasCurrent = !!(this.store.current && this.store.players[this.store.current]);
     this.setScreen(`
       <div class="players-page">
-        <div class="players-hero">${Capy.side({ tangerine: true, size: 170 })}</div>
+        <div class="players-hero">${Capy.tappable(Capy.side({ tangerine: true, size: 170 }), "players")}</div>
         <h1 class="players-title">Who’s learning today?</h1>
         ${names.length ? `<div class="player-grid">${cards}</div>` : ""}
         <div class="add-player">
@@ -237,7 +237,7 @@ const App = {
     this.setScreen(`
       <div class="home">
         <div class="hero">
-          <div class="hero-capy bob">${Capy.side({ tangerine: true, water: true, size: 230 })}</div>
+          <div class="hero-capy bob">${Capy.tappable(Capy.side({ tangerine: true, water: true, size: 230 }), "home")}</div>
           <div class="hero-text">
             <h1>Cappy’s Workbook</h1>
             <p class="tagline">First grade fun with your capybara friend! 🌿</p>
@@ -278,7 +278,7 @@ const App = {
         <div class="subject-banner ${s.cls}">
           <span class="banner-emoji">${s.emoji}</span>
           <div><h2>${s.title}</h2><p>${s.blurb}</p></div>
-          <div class="banner-capy">${Capy.side({ size: 110, flip: true })}</div>
+          <div class="banner-capy">${Capy.tappable(Capy.side({ size: 110, flip: true }), key)}</div>
         </div>
         <div class="activity-grid">${cards}</div>
       </div>
@@ -330,7 +330,7 @@ const App = {
     this.setScreen(`
       <div class="report-page">
         <div class="report-head">
-          ${Capy.front({ size: 108, happy: true, tangerine: true })}
+          ${Capy.tappable(Capy.front({ size: 108, happy: true, tangerine: true }), "report")}
           <div>
             <h2>${escapeHtml(name)}’s Report Card</h2>
             <p class="report-totals">⭐ ${totalStars} stars &nbsp;·&nbsp; 🍊 ${this.state.yuzus} yuzus</p>
@@ -541,7 +541,7 @@ const Celebrate = {
     if (name) headline = headline.replace(/!$/, `, ${escapeHtml(name)}!`);
     ov.innerHTML = `
       <div class="celebrate-card pop-in">
-        <div class="celebrate-capy">${Capy.front({ tangerine: true, happy: true, size: 170 })}</div>
+        <div class="celebrate-capy">${Capy.tappable(Capy.front({ tangerine: true, happy: true, size: 170 }), "praise")}</div>
         <h2>${headline}</h2>
         <div class="star-row">
           ${[0,1,2].map(i => `<span class="big-star ${i < stars ? "lit" : ""}" style="animation-delay:${0.25 + i * 0.28}s">★</span>`).join("")}
