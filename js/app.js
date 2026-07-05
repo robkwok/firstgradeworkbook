@@ -66,7 +66,11 @@ const App = {
     } catch (e) {}
     return store;
   },
-  save() { try { localStorage.setItem("capyWorkbookV2", JSON.stringify(this.store)); } catch (e) {} },
+  saveLocal() { try { localStorage.setItem("capyWorkbookV2", JSON.stringify(this.store)); } catch (e) {} },
+  save() {
+    this.saveLocal();
+    if (window.Sync) Sync.schedulePush(); // no-op unless a family code is set
+  },
 
   init() {
     this.store = this.load();
@@ -101,6 +105,11 @@ const App = {
     this.updatePlayerChip();
     if (this.store.current && this.store.players[this.store.current]) this.goHome();
     else this.goPlayers();
+
+    if (this.store.familyCode && window.Sync) Sync.push(); // pull + merge on launch
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden && this.store.familyCode && window.Sync) Sync.push();
+    });
   },
 
   updateYuzu() { this.els.yuzu.textContent = this.state.yuzus; },
@@ -137,6 +146,7 @@ const App = {
           <button class="big-btn orange" id="player-add">Let’s Go! →</button>
         </div>
         <p class="home-tip">Each name saves its own stars, yuzus, and traced letters.</p>
+        <button class="sync-link" onclick="Sync.screen()">🔗 Family Sync${this.store.familyCode ? " · on" : ""}</button>
       </div>
     `, { title: "Who’s playing? 👤", backTo: hasCurrent ? () => this.goHome() : null });
 
@@ -174,6 +184,8 @@ const App = {
     if (!confirm(`Delete ${name}’s saved progress?`)) return;
     delete this.store.players[name];
     if (this.store.current === name) this.store.current = null;
+    if (this.store.familyCode)
+      (this.store.pendingRemove = this.store.pendingRemove || []).push(name);
     this.save();
     this.updatePlayerChip();
     this.goPlayers();

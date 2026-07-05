@@ -55,6 +55,12 @@ as-is to any static host (Vercel, Netlify, GitHub Pages).
   stars, yuzus, best scores, and traced letters — great for siblings or a classroom
   sharing one iPad. The 👤 chip in the header switches players, and the **🌟 My Stars**
   report card shows saved results per activity.
+- **Family Sync (cross-device).** From the player picker, a grown-up can create a
+  family code (like `CAPY-7GX2M4`) or enter one on another device — no accounts, no
+  emails; only first names and stars are stored. Progress syncs automatically (pull on
+  launch, debounced push after play) via a tiny serverless API (`api/sync.js`) on
+  Vercel backed by Vercel Blob. Merges are monotonic (max stars/best scores, union of
+  traced letters), so two devices playing at once never overwrite each other.
 
 ## iPad specifics
 
