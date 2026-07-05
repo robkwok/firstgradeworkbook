@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Cappy's Workbook · First Grade Fun</title>
+<meta name="description" content="A fun capybara-themed first grade workbook: writing, reading, and math practice designed for iPad.">
+<meta name="theme-color" content="#FFF3E0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Cappy">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Andika:wght@400;700&family=Patrick+Hand&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header id="topbar">
+    <button id="btn-back" class="icon-btn" aria-label="Go back">🏠</button>
+    <div id="topbar-title">Cappy&rsquo;s Workbook</div>
+    <div class="topbar-right">
+      <div id="yuzu-chip" title="Yuzu oranges earned">🍊 <span id="yuzu-count">0</span></div>
+      <button id="btn-sound" class="icon-btn" aria-label="Toggle sound">🔊</button>
+    </div>
+  </header>
+  <main id="screen"></main>
+  <div id="overlay" hidden></div>
+  <canvas id="confetti"></canvas>
+
+  <script src="js/data.js"></script>
+  <script src="js/capy.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/writing.js"></script>
+  <script src="js/reading.js"></script>
+  <script src="js/math.js"></script>
+</body>
+</html>

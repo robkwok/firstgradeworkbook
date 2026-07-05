@@ -1,0 +1,13 @@
+{
+  "name": "Cappy's Workbook",
+  "short_name": "Cappy",
+  "description": "Capybara-themed first grade workbook: writing, reading, and math.",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#FFF6E9",
+  "theme_color": "#F59E2D",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml" },
+    { "src": "apple-touch-icon.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
