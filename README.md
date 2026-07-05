@@ -11,7 +11,11 @@ cd firstgradeworkbook
 python3 -m http.server 4173
 ```
 
-Then open `http://localhost:4173`. To use it on an iPad on the same Wi-Fi network, open
+Then open `http://localhost:4173`.
+
+Live: **https://robkwok.github.io/firstgradeworkbook/** (GitHub Pages) — also mirrored,
+along with the Family Sync API, at **https://firstgradeworkbook.vercel.app** (Vercel,
+auto-deploys on every push via the Git integration). To use it on an iPad on the same Wi-Fi network, open
 `http://<your-mac-ip>:4173` in Safari, then **Share → Add to Home Screen** for a
 full-screen, kid-proof app experience (no browser chrome). You can also deploy the folder
 as-is to any static host (Vercel, Netlify, GitHub Pages).
