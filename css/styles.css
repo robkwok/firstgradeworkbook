@@ -810,6 +810,83 @@ button:active { transform: scale(0.96); }
 }
 #player-input:focus { border-color: var(--orange); }
 
+/* ---------------- Cappy's Pond ---------------- */
+#yuzu-chip { cursor: pointer; }
+#yuzu-chip:active { transform: scale(0.96); }
+.pond-page {
+  max-width: 760px; margin: 0 auto;
+  display: flex; flex-direction: column; align-items: center; gap: 14px;
+}
+.pond-stats { display: flex; gap: 14px; }
+.pond-stat {
+  font-size: clamp(18px, 2.6vw, 22px); font-weight: 700;
+  background: var(--card); border-radius: 16px;
+  padding: 10px 18px;
+  box-shadow: var(--shadow);
+}
+.pond-scene {
+  position: relative;
+  width: 100%;
+  display: flex; justify-content: center;
+  background: linear-gradient(180deg, #EAF6EC 0%, #D6EFF7 100%);
+  border-radius: 28px;
+  padding: 26px 10px 14px;
+  box-shadow: var(--shadow);
+  overflow: visible;
+}
+.pond-hint { margin: 0; color: var(--brown-soft); font-weight: 600; font-size: clamp(15px, 2.2vw, 18px); min-height: 20px; }
+.feed-row {
+  display: flex; flex-wrap: wrap; gap: 10px;
+  justify-content: center; align-items: center;
+  min-height: 64px;
+}
+.feed-yuzu {
+  font-size: 40px; line-height: 1;
+  background: var(--card);
+  border-radius: 50%;
+  width: 62px; height: 62px;
+  box-shadow: var(--shadow);
+  will-change: transform, opacity;
+}
+.feed-more { font-size: 22px; font-weight: 700; color: var(--brown-soft); }
+.heart-meter { width: min(480px, 100%); display: flex; flex-direction: column; gap: 8px; }
+.heart-meter-text { text-align: center; font-weight: 600; font-size: clamp(15px, 2.2vw, 18px); }
+.heart-fill { background: linear-gradient(90deg, #E85D75, #F2A0C0); }
+.heart-pop {
+  position: absolute;
+  bottom: 40%;
+  font-size: 30px;
+  pointer-events: none;
+  animation: heartUp 1.3s ease forwards;
+  z-index: 30;
+}
+@keyframes heartUp {
+  from { opacity: 0; transform: translateY(10px) scale(0.6); }
+  25% { opacity: 1; transform: translateY(-8px) scale(1.1); }
+  to { opacity: 0; transform: translateY(-70px) scale(1); }
+}
+.wardrobe-title { margin: 8px 0 0; font-size: clamp(19px, 2.8vw, 24px); color: var(--capy-dark); }
+.wardrobe {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(112px, 1fr));
+  gap: 12px;
+  width: 100%;
+}
+.hat-chip {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  background: var(--card);
+  border: 3px solid #E2D2B8;
+  border-radius: 18px;
+  padding: 12px 8px;
+  min-height: 96px;
+}
+.hat-chip .hat-emoji { font-size: 32px; line-height: 1; }
+.hat-chip .hat-name { font-weight: 700; font-size: 14px; }
+.hat-chip .hat-req { font-size: 12px; color: var(--brown-soft); font-weight: 600; }
+.hat-chip.worn { border-color: var(--orange); background: #FFF0D6; }
+.hat-chip.worn .hat-req { color: var(--orange-dark); }
+.hat-chip.locked { opacity: 0.55; }
+
 /* ---------------- tap-to-talk mascot ---------------- */
 .capy-tap {
   position: relative;

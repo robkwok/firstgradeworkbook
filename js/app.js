@@ -43,7 +43,9 @@ const App = {
     return (this.store.current && this.store.players[this.store.current]) ||
       this._nobody || (this._nobody = this.blankPlayer());
   },
-  blankPlayer() { return { activities: {}, yuzus: 0, traceDone: {}, storyIdx: 0 }; },
+  blankPlayer() { return { activities: {}, yuzus: 0, fed: 0, hat: null, traceDone: {}, storyIdx: 0 }; },
+  /* yuzus = earned (monotonic), fed = spent (monotonic) — balance is the difference */
+  balance() { return Math.max(0, (this.state.yuzus || 0) - (this.state.fed || 0)); },
 
   load() {
     try {
@@ -99,6 +101,11 @@ const App = {
       Capy.Sfx.pop();
       this.goPlayers();
     });
+    document.getElementById("yuzu-chip").addEventListener("click", () => {
+      if (!this.store.current) return;
+      Capy.Sfx.pop();
+      Pond.open();
+    });
 
     Capy.Confetti.init(document.getElementById("confetti"));
     this.updateYuzu();
@@ -112,7 +119,7 @@ const App = {
     });
   },
 
-  updateYuzu() { this.els.yuzu.textContent = this.state.yuzus; },
+  updateYuzu() { this.els.yuzu.textContent = this.balance(); },
   updatePlayerChip() {
     this.els.playerName.textContent = this.store.current || "Name";
   },
@@ -126,7 +133,7 @@ const App = {
       return `
         <div class="player-card-wrap">
           <button class="player-card" data-name="${escapeHtml(n)}">
-            <span class="player-avatar">${Capy.front({ size: 78, happy: true, tangerine: true })}</span>
+            <span class="player-avatar">${Capy.front({ size: 78, happy: true, tangerine: true, hat: p.hat })}</span>
             <span class="player-label">${escapeHtml(n)}</span>
             <span class="player-stats">⭐ ${stars} · 🍊 ${p.yuzus}</span>
           </button>
@@ -237,7 +244,7 @@ const App = {
     this.setScreen(`
       <div class="home">
         <div class="hero">
-          <div class="hero-capy bob">${Capy.tappable(Capy.side({ tangerine: true, water: true, size: 230 }), "home")}</div>
+          <div class="hero-capy bob">${Capy.tappable(Capy.side({ tangerine: true, water: true, size: 230, hat: this.state.hat }), "home")}</div>
           <div class="hero-text">
             <h1>Cappy’s Workbook</h1>
             <p class="tagline">First grade fun with your capybara friend! 🌿</p>
@@ -246,6 +253,7 @@ const App = {
         </div>
         <div class="subject-grid">${cards}</div>
         <div class="home-actions">
+          <button class="big-btn orange" onclick="Pond.open()">🍊 Cappy’s Pond</button>
           <button class="big-btn tan" onclick="App.goReport()">🌟 My Stars</button>
         </div>
         <p class="home-tip">Finish a round to earn a yuzu orange 🍊 for Cappy’s warm bath!</p>
@@ -278,7 +286,7 @@ const App = {
         <div class="subject-banner ${s.cls}">
           <span class="banner-emoji">${s.emoji}</span>
           <div><h2>${s.title}</h2><p>${s.blurb}</p></div>
-          <div class="banner-capy">${Capy.tappable(Capy.side({ size: 110, flip: true }), key)}</div>
+          <div class="banner-capy">${Capy.tappable(Capy.side({ size: 110, flip: true, hat: this.state.hat }), key)}</div>
         </div>
         <div class="activity-grid">${cards}</div>
       </div>
@@ -330,10 +338,10 @@ const App = {
     this.setScreen(`
       <div class="report-page">
         <div class="report-head">
-          ${Capy.tappable(Capy.front({ size: 108, happy: true, tangerine: true }), "report")}
+          ${Capy.tappable(Capy.front({ size: 108, happy: true, tangerine: true, hat: this.state.hat }), "report")}
           <div>
             <h2>${escapeHtml(name)}’s Report Card</h2>
-            <p class="report-totals">⭐ ${totalStars} stars &nbsp;·&nbsp; 🍊 ${this.state.yuzus} yuzus</p>
+            <p class="report-totals">⭐ ${totalStars} stars &nbsp;·&nbsp; 🍊 ${this.balance()} yuzus &nbsp;·&nbsp; ❤️ ${this.state.fed || 0} hearts</p>
           </div>
         </div>
         ${sections}
@@ -541,13 +549,13 @@ const Celebrate = {
     if (name) headline = headline.replace(/!$/, `, ${escapeHtml(name)}!`);
     ov.innerHTML = `
       <div class="celebrate-card pop-in">
-        <div class="celebrate-capy">${Capy.tappable(Capy.front({ tangerine: true, happy: true, size: 170 }), "praise")}</div>
+        <div class="celebrate-capy">${Capy.tappable(Capy.front({ tangerine: true, happy: true, size: 170, hat: App.state.hat }), "praise")}</div>
         <h2>${headline}</h2>
         <div class="star-row">
           ${[0,1,2].map(i => `<span class="big-star ${i < stars ? "lit" : ""}" style="animation-delay:${0.25 + i * 0.28}s">★</span>`).join("")}
         </div>
         <p class="score-line">You got <b>${score}</b> out of <b>${total}</b> right!</p>
-        <p class="yuzu-line">+1 🍊 for Cappy’s bath!</p>
+        <p class="yuzu-line">+1 🍊 — feed it to Cappy at the pond!</p>
         <div class="celebrate-btns">
           <button class="big-btn orange" id="cel-again">Play Again ↻</button>
           <button class="big-btn green" id="cel-menu">More Games ✓</button>

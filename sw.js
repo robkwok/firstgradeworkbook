@@ -4,7 +4,7 @@
      background, so new deploys appear on the next visit with no version bump.
    - Bump CACHE only when the asset LIST changes (added/removed files). */
 
-const CACHE = "cappy-v2";
+const CACHE = "cappy-v3";
 
 const ASSETS = [
   "./",
@@ -14,6 +14,7 @@ const ASSETS = [
   "./js/capy.js",
   "./js/app.js",
   "./js/sync.js",
+  "./js/pond.js",
   "./js/writing.js",
   "./js/reading.js",
   "./js/math.js",

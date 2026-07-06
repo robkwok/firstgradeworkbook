@@ -17,16 +17,85 @@ const Capy = (() => {
     water2:"#7CC7E0"
   };
 
-  /* Side-view capybara (the classic loaf). opts: tangerine, water, size */
+  /* ---------------- Wearable accessories (unlocked with hearts) ----------------
+     Each hat has SVG snippets anchored for the side and front poses.
+     `at` = hearts (feedings) required to unlock. */
+  function flower(x, y, petal, center) {
+    let s = "";
+    for (let i = 0; i < 5; i++) {
+      const a = i * 72 * Math.PI / 180;
+      s += `<circle cx="${(x + Math.sin(a) * 4).toFixed(1)}" cy="${(y - Math.cos(a) * 4).toFixed(1)}" r="3" fill="${petal}"/>`;
+    }
+    return s + `<circle cx="${x}" cy="${y}" r="2.6" fill="${center}"/>`;
+  }
+  const HATS = {
+    leaf: {
+      name: "Sprout Hat", label: "🌱", at: 3,
+      side: `<path d="M128 26 q-1 -8 0 -14" stroke="#5F9E4B" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <ellipse cx="121" cy="9" rx="8" ry="4.6" fill="#6FB05A" transform="rotate(-28 121 9)"/>
+        <ellipse cx="135" cy="7" rx="8" ry="4.6" fill="#5F9E4B" transform="rotate(22 135 7)"/>`,
+      front: `<path d="M100 30 q-1 -8 0 -14" stroke="#5F9E4B" stroke-width="3.4" fill="none" stroke-linecap="round"/>
+        <ellipse cx="92" cy="13" rx="9" ry="5" fill="#6FB05A" transform="rotate(-28 92 13)"/>
+        <ellipse cx="108" cy="11" rx="9" ry="5" fill="#5F9E4B" transform="rotate(22 108 11)"/>`
+    },
+    bow: {
+      name: "Party Bow", label: "🎀", at: 6,
+      side: `<path d="M128 13 l-13 -7 l0 14 z" fill="#F27EA9"/><path d="M128 13 l13 -7 l0 14 z" fill="#F27EA9"/>
+        <circle cx="128" cy="13" r="4.6" fill="#D95E8F"/>`,
+      front: `<path d="M100 17 l-15 -8 l0 16 z" fill="#F27EA9"/><path d="M100 17 l15 -8 l0 16 z" fill="#F27EA9"/>
+        <circle cx="100" cy="17" r="5.2" fill="#D95E8F"/>`
+    },
+    shades: {
+      name: "Cool Shades", label: "😎", at: 10,
+      side: `<line x1="127" y1="54" x2="108" y2="50" stroke="#2E2E2E" stroke-width="3.4" stroke-linecap="round"/>
+        <rect x="127" y="47" width="19" height="15" rx="6" fill="#2E2E2E"/>
+        <circle cx="133" cy="51.5" r="2" fill="#fff" opacity="0.55"/>`,
+      front: `<line x1="66" y1="84" x2="49" y2="79" stroke="#2E2E2E" stroke-width="4" stroke-linecap="round"/>
+        <line x1="134" y1="84" x2="151" y2="79" stroke="#2E2E2E" stroke-width="4" stroke-linecap="round"/>
+        <rect x="66" y="75" width="27" height="17" rx="7" fill="#2E2E2E"/>
+        <rect x="107" y="75" width="27" height="17" rx="7" fill="#2E2E2E"/>
+        <line x1="93" y1="82" x2="107" y2="82" stroke="#2E2E2E" stroke-width="4"/>
+        <circle cx="74" cy="80" r="2.4" fill="#fff" opacity="0.55"/>
+        <circle cx="115" cy="80" r="2.4" fill="#fff" opacity="0.55"/>`
+    },
+    flowers: {
+      name: "Flower Crown", label: "🌸", at: 15,
+      side: flower(114, 27, "#F2A0C0", "#FFD166") + flower(132, 20, "#FFD166", "#F27EA9") + flower(150, 27, "#9BC7F2", "#FFD166"),
+      front: flower(72, 28, "#F2A0C0", "#FFD166") + flower(100, 19, "#FFD166", "#F27EA9") + flower(128, 28, "#9BC7F2", "#FFD166")
+    },
+    duck: {
+      name: "Duck Pal", label: "🦆", at: 20,
+      side: `<ellipse cx="130" cy="14" rx="10" ry="7" fill="#FFD955"/>
+        <path d="M124 12 q-4 3 -1 6" stroke="#EDBE2F" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+        <circle cx="138" cy="7" r="5.5" fill="#FFD955"/>
+        <path d="M143 6 l6 2 -6 2 z" fill="#F59E2D"/>
+        <circle cx="139" cy="6" r="1.3" fill="#3B2A1E"/>`,
+      front: `<ellipse cx="100" cy="16" rx="11" ry="7.5" fill="#FFD955"/>
+        <path d="M93 14 q-4 3 -1 6" stroke="#EDBE2F" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+        <circle cx="109" cy="8" r="6" fill="#FFD955"/>
+        <path d="M114.5 7 l6.5 2.2 -6.5 2.2 z" fill="#F59E2D"/>
+        <circle cx="110" cy="7" r="1.4" fill="#3B2A1E"/>`
+    },
+    crown: {
+      name: "Royal Crown", label: "👑", at: 30,
+      side: `<path d="M114 24 l0 -13 7 6 9 -8 9 8 7 -6 0 13 z" fill="#FFC531" stroke="#D9A10F" stroke-width="2" stroke-linejoin="round"/>
+        <circle cx="123" cy="19" r="1.8" fill="#E85D75"/><circle cx="130" cy="17" r="1.8" fill="#5B8DEF"/><circle cx="137" cy="19" r="1.8" fill="#4CAF7D"/>`,
+      front: `<path d="M82 30 l0 -14 8 7 10 -9 10 9 8 -7 0 14 z" fill="#FFC531" stroke="#D9A10F" stroke-width="2.2" stroke-linejoin="round"/>
+        <circle cx="91" cy="24" r="2" fill="#E85D75"/><circle cx="100" cy="21" r="2" fill="#5B8DEF"/><circle cx="109" cy="24" r="2" fill="#4CAF7D"/>`
+    }
+  };
+
+  /* Side-view capybara (the classic loaf). opts: tangerine, water, size, hat */
   function side(opts = {}) {
-    const { tangerine = false, water = false, size = 160, flip = false } = opts;
+    const { tangerine = false, water = false, size = 160, flip = false, hat = null } = opts;
+    const worn = hat && HATS[hat];
     const legs = water ? "" : `
       <rect x="38" y="112" width="15" height="20" rx="7" fill="${C.body2}"/>
       <rect x="98" y="112" width="15" height="20" rx="7" fill="${C.body2}"/>`;
     const waterShape = water ? `
       <ellipse cx="105" cy="124" rx="102" ry="17" fill="${C.water}"/>
       <path d="M8 122 Q 30 114 55 122 T 105 122 T 155 122 T 202 122" stroke="${C.water2}" stroke-width="4" fill="none" stroke-linecap="round"/>` : "";
-    const fruit = tangerine ? `
+    const fruit = worn ? worn.side : tangerine ? `
       <circle cx="128" cy="17" r="12" fill="${C.orange}"/>
       <circle cx="124" cy="13" r="3" fill="#FFC966" opacity="0.8"/>
       <ellipse cx="136" cy="9" rx="6" ry="3.4" fill="${C.leaf}" transform="rotate(-24 136 9)"/>` : "";
@@ -53,12 +122,13 @@ const Capy = (() => {
 
   /* Front-facing capybara for celebrations. opts: happy (closed ^^ eyes) */
   function front(opts = {}) {
-    const { tangerine = true, happy = true, size = 190 } = opts;
+    const { tangerine = true, happy = true, size = 190, hat = null } = opts;
+    const worn = hat && HATS[hat];
     const eyes = happy
       ? `<path d="M70 84 q8 -9 16 0" stroke="${C.eye}" stroke-width="5" fill="none" stroke-linecap="round"/>
          <path d="M114 84 q8 -9 16 0" stroke="${C.eye}" stroke-width="5" fill="none" stroke-linecap="round"/>`
       : `<circle cx="78" cy="84" r="6" fill="${C.eye}"/><circle cx="122" cy="84" r="6" fill="${C.eye}"/>`;
-    const fruit = tangerine ? `
+    const fruit = worn ? worn.front : tangerine ? `
       <circle cx="100" cy="22" r="14" fill="${C.orange}"/>
       <circle cx="95" cy="17" r="3.6" fill="#FFC966" opacity="0.8"/>
       <ellipse cx="110" cy="12" rx="7" ry="4" fill="${C.leaf}" transform="rotate(-24 110 12)"/>` : "";
@@ -124,7 +194,8 @@ const Capy = (() => {
     boop()   { if (this.on) tone(200, 0, 0.22, "triangle", 0.12); },
     pop()    { if (this.on) tone(720, 0, 0.06, "square", 0.06); },
     fanfare(){ if (this.on) [523, 659, 784, 1047].forEach((f, i) => tone(f, i * 0.13, 0.28, "sine", 0.2)); },
-    squeak() { if (this.on) { chirp(600, 1400, 0, 0.09); chirp(750, 1550, 0.13, 0.08); } }
+    squeak() { if (this.on) { chirp(600, 1400, 0, 0.09); chirp(750, 1550, 0.13, 0.08); } },
+    chomp()  { if (this.on) { chirp(300, 150, 0, 0.09, 0.16); chirp(280, 140, 0.13, 0.09, 0.16); chirp(320, 150, 0.26, 0.1, 0.16); } }
   };
 
   /* ---------------- Text to speech ---------------- */
@@ -197,6 +268,12 @@ const Capy = (() => {
       "Capy-tastic!",
       "You did it! Squeak!",
       "Super-duper swimmer!"
+    ],
+    pond: [
+      "Feed me a yuzu, please!",
+      "This pond is paradise.",
+      "A yuzu a day keeps the grumpies away!",
+      "How do I look?"
     ]
   };
   const lastPhrase = {};
@@ -281,5 +358,5 @@ const Capy = (() => {
     }
   };
 
-  return { side, front, mini, Sfx, speak, Confetti, tappable, chat, colors: C };
+  return { side, front, mini, Sfx, speak, Confetti, tappable, chat, HATS, colors: C };
 })();

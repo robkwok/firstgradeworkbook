@@ -33,7 +33,9 @@ function mergePlayers(a = {}, b = {}) {
     ])) acts[id] = mergeActivity((pa.activities || {})[id], (pb.activities || {})[id]);
     out[name] = {
       activities: acts,
-      yuzus: Math.max(pa.yuzus || 0, pb.yuzus || 0),
+      yuzus: Math.max(pa.yuzus || 0, pb.yuzus || 0),      // earned: monotonic
+      fed: Math.max(pa.fed || 0, pb.fed || 0),            // spent: monotonic
+      hat: pb.hat !== undefined ? pb.hat : (pa.hat ?? null), // cosmetic: incoming wins
       storyIdx: Math.max(pa.storyIdx || 0, pb.storyIdx || 0),
       traceDone: { ...(pa.traceDone || {}), ...(pb.traceDone || {}) }
     };
