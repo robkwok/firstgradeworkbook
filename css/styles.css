@@ -494,6 +494,27 @@ button:active { transform: scale(0.96); }
 .count-emoji { font-size: 44px; line-height: 1; }
 .count-capy svg { display: block; }
 
+/* ten-frames (5x2 counting grids) */
+.tf-wrap {
+  display: flex; flex-wrap: wrap; gap: clamp(14px, 3vw, 26px);
+  justify-content: center;
+}
+.ten-frame {
+  display: grid;
+  grid-template-columns: repeat(5, clamp(46px, 8.5vw, 64px));
+  grid-auto-rows: clamp(46px, 8.5vw, 64px);
+  background: #fff;
+  border: 3px solid var(--capy-dark);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.tf-cell {
+  border: 1.5px solid #DCCBAD;
+  display: flex; align-items: center; justify-content: center;
+}
+.tf-cell .count-emoji { font-size: clamp(26px, 5vw, 38px); }
+.tf-cell .count-capy svg { width: 90%; height: auto; }
+
 .chip-scene {
   display: flex; align-items: center; gap: 18px;
   flex-wrap: wrap; justify-content: center;

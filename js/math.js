@@ -9,6 +9,23 @@
    - Cappy Clock             (time to hour and half hour)
    ============================================================ */
 
+/* Ten-frames: the standard grade-1 counting grid (5 columns x 2 rows).
+   Filling rows of five builds subitizing — kids see 7 as "5 and 2"
+   instead of counting one by one. */
+function tenFrames(n, itemHtml) {
+  const frames = Math.max(1, Math.ceil(n / 10));
+  let html = `<div class="tf-wrap">`;
+  for (let f = 0; f < frames; f++) {
+    html += `<div class="ten-frame">`;
+    for (let c = 0; c < 10; c++) {
+      const idx = f * 10 + c;
+      html += `<div class="tf-cell">${idx < n ? itemHtml() : ""}</div>`;
+    }
+    html += `</div>`;
+  }
+  return html + `</div>`;
+}
+
 /* counters used as visual manipulatives */
 function chipRow(n, cls, crossFrom = -1) {
   let html = `<div class="chip-box ${cls}">`;
@@ -47,11 +64,10 @@ registerActivity({
       const item = choice(items);
       return {
         render(area) {
-          let field = "";
-          for (let i = 0; i < n; i++) field += item.html();
           area.innerHTML = `
             <div class="prompt-bar">🔢 How many ${item.name}? ${UI.speakerBtn("How many " + item.name + "?")}</div>
-            <div class="count-field">${field}</div>`;
+            <p class="hint-line">Each row holds five — count by fives!</p>
+            ${tenFrames(n, item.html)}`;
           const opts = uniqueChoices(n, () => Math.max(1, n + rnd(-3, 3)));
           UI.choices(area, opts.map(o => ({ html: o })), opts.indexOf(n), { cls: "num-grid", big: true });
         }
