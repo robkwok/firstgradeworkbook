@@ -283,6 +283,31 @@ const Capy = (() => {
     return `<button class="capy-tap" aria-label="Tap Cappy" onclick="Capy.chat(this, '${pool}')">${svg}</button>`;
   }
 
+  /* speech bubble that stays fully visible: flips below the capy when the
+     top of the scroll area (under the header bar) would clip it, and nudges
+     sideways at the viewport edges */
+  function bubble(el, text, ms = 2400) {
+    el.querySelector(".capy-speech")?.remove();
+    const b = document.createElement("div");
+    b.className = "capy-speech";
+    b.textContent = text;
+    el.appendChild(b);
+    // position with layout properties (offsetWidth/left) rather than
+    // transforms — the pop-in animation owns the transform property
+    const w = b.offsetWidth, h = b.offsetHeight;
+    const er = el.getBoundingClientRect();
+    const screenEl = document.getElementById("screen");
+    const topEdge = screenEl ? screenEl.getBoundingClientRect().top : 0;
+    if (er.top - 8 - h < topEdge + 4) b.classList.add("below");
+    let left = el.clientWidth / 2 - w / 2;          // centered over the capy
+    const vpLeft = er.left + left;                   // …nudged inside the viewport
+    if (vpLeft < 8) left += 8 - vpLeft;
+    else if (vpLeft + w > innerWidth - 8) left -= vpLeft + w - (innerWidth - 8);
+    b.style.left = left + "px";
+    setTimeout(() => b.remove(), ms);
+    return b;
+  }
+
   function chat(el, pool = "general") {
     const options = (PHRASES[pool] || []).concat(PHRASES.general);
     let i = (Math.random() * options.length) | 0;
@@ -292,20 +317,7 @@ const Capy = (() => {
 
     Sfx.squeak();
     speak(phrase, 1.0, 1.3);
-
-    el.querySelector(".capy-speech")?.remove();
-    const b = document.createElement("div");
-    b.className = "capy-speech";
-    b.textContent = phrase;
-    el.appendChild(b);
-    requestAnimationFrame(() => {           // keep the bubble on screen
-      const r = b.getBoundingClientRect();
-      let shift = 0;
-      if (r.left < 8) shift = 8 - r.left;
-      if (r.right > innerWidth - 8) shift = innerWidth - 8 - r.right;
-      if (shift) b.style.transform = `translateX(calc(-50% + ${shift}px))`;
-    });
-    setTimeout(() => b.remove(), 2400);
+    bubble(el, phrase);
 
     el.classList.remove("capy-wiggle"); void el.offsetWidth;
     el.classList.add("capy-wiggle");
@@ -358,5 +370,5 @@ const Capy = (() => {
     }
   };
 
-  return { side, front, mini, Sfx, speak, Confetti, tappable, chat, HATS, colors: C };
+  return { side, front, mini, Sfx, speak, Confetti, tappable, chat, bubble, HATS, colors: C };
 })();

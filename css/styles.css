@@ -899,8 +899,6 @@ button:active { transform: scale(0.96); }
 .capy-speech {
   position: absolute;
   bottom: calc(100% + 8px);
-  left: 50%;
-  transform: translateX(-50%);
   width: max-content;
   max-width: min(280px, 78vw);
   background: #fff;
@@ -926,6 +924,17 @@ button:active { transform: scale(0.96); }
   transform: translateX(-50%);
   border: 8px solid transparent;
   border-top-color: var(--orange);
+}
+/* flipped variant: bubble sits under the capy when the header would clip it */
+.capy-speech.below {
+  bottom: auto;
+  top: calc(100% + 8px);
+}
+.capy-speech.below::after {
+  top: auto;
+  bottom: 100%;
+  border-top-color: transparent;
+  border-bottom-color: var(--orange);
 }
 .capy-wiggle { animation: wiggle 0.5s ease; transform-origin: 50% 80%; }
 @keyframes wiggle {

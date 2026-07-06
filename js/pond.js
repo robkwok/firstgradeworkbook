@@ -118,12 +118,7 @@ const Pond = {
       Capy.Sfx.chomp();
       const phrase = choice(this.FEED_PHRASES);
       Capy.speak(phrase, 1.0, 1.3);
-      capy.querySelector(".capy-speech")?.remove();
-      const bubble = document.createElement("div");
-      bubble.className = "capy-speech";
-      bubble.textContent = phrase;
-      capy.appendChild(bubble);
-      setTimeout(() => bubble.remove(), 1600);
+      Capy.bubble(capy, phrase, 1600);
       capy.classList.remove("capy-wiggle"); void capy.offsetWidth;
       capy.classList.add("capy-wiggle");
 
